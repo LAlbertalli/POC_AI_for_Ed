@@ -65,7 +65,7 @@ graph TD
         S7 -->|"Passed QA"| S8["Feature Complete (status: DONE)"]
     end
 
-    S7 -.->"User Feedback / Revision Needed"| S1
+    S7 -.->|"User Feedback / Revision Needed"| S1
 ```
 
 ### Subagent Roster
