@@ -1,0 +1,62 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+env:
+  # TOGGLE THIS TO "true" WHEN YOU ARE READY TO ACTIVATE GITHUB PAGES PUBLISHING
+  ENABLE_PUBLISH: "false"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Static App
+        run: npm run build
+
+      - name: Check Deploy Flag
+        id: check_deploy
+        run: |
+          if [ "${{ env.ENABLE_PUBLISH }}" != "true" ]; then
+            echo "Publishing is currently disabled (ENABLE_PUBLISH=${{ env.ENABLE_PUBLISH }})."
+            echo "Skipping deployment step."
+            exit 0
+          fi
+
+      - name: Setup Pages
+        if: env.ENABLE_PUBLISH == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload Pages Artifact
+        if: env.ENABLE_PUBLISH == 'true'
+        uses: actions/playwright-artifact@v4
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        if: env.ENABLE_PUBLISH == 'true'
+        uses: actions/deploy-pages@v4
