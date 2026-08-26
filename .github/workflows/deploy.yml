@@ -53,7 +53,7 @@ jobs:
 
       - name: Upload Pages Artifact
         if: env.ENABLE_PUBLISH == 'true'
-        uses: actions/playwright-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
 
